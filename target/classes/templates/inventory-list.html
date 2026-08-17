@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Kho Hàng - CafePAL</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <!-- Header Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand fw-bold" th:href="@{/}">☕ CafePAL</a>
+            <div class="navbar-nav me-auto">
+                <a class="nav-link" th:href="@{/}">Trang chủ</a>
+                <a class="nav-link" th:href="@{/pos}">Order Tại Bàn (POS)</a>
+                <a class="nav-link" th:href="@{/products}">Quản lý Thực Đơn</a>
+                <a class="nav-link active" th:href="@{/inventory}">Quản lý Kho Hàng</a>
+                <a class="nav-link" th:href="@{/users}">Quản lý Người Dùng</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Table -->
+    <div class="container my-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="m-0 fw-bold text-dark">📦 Quản Lý Kho & Nguyên Vật Liệu</h5>
+                <a th:href="@{/inventory/add}" class="btn btn-success btn-sm">+ Nhập Kho Mới</a>
+            </div>
+
+            <!-- Tìm kiếm -->
+            <div class="card-body border-bottom bg-light">
+                <form th:action="@{/inventory}" method="get" class="row g-2 align-items-center">
+                    <div class="col-auto">
+                        <input type="text" name="keyword" th:value="${keyword}" class="form-control form-control-sm" placeholder="Tìm theo tên sản phẩm...">
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-secondary btn-sm">Tìm kiếm</button>
+                        <a th:href="@{/inventory}" class="btn btn-outline-secondary btn-sm">Làm mới</a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Mã Kho</th>
+                                <th>Sản phẩm / Món</th>
+                                <th>Nhà cung cấp</th>
+                                <th>Ngày nhập kho</th>
+                                <th>Số lượng tồn</th>
+                                <th>Tình trạng</th>
+                                <th class="text-center">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="item : ${inventories}">
+                                <td th:text="${item.maKho}">1</td>
+                                <td>
+                                    <strong th:text="${item.sanPham != null ? item.sanPham.tenSanPham : 'N/A'}">Tên món</strong>
+                                    <span class="badge bg-secondary ms-1" th:if="${item.sanPham != null}" th:text="${item.sanPham.kichCo}">M</span>
+                                </td>
+                                <td th:text="${item.nhaCungCap != null ? item.nhaCungCap : 'Chưa rõ'}">Nhà cung cấp A</td>
+                                <td th:text="${item.ngayNhapKho}">2026-08-17</td>
+                                <td>
+                                    <span class="fw-bold fs-6" th:text="${item.soLuongCon}">50</span>
+                                </td>
+                                <td>
+                                    <span th:if="${item.soLuongCon == null || item.soLuongCon == 0}" class="badge bg-danger">Hết hàng</span>
+                                    <span th:if="${item.soLuongCon != null && item.soLuongCon > 0 && item.soLuongCon <= 10}" class="badge bg-warning text-dark">Sắp hết hàng</span>
+                                    <span th:if="${item.soLuongCon != null && item.soLuongCon > 10}" class="badge bg-success">Đủ hàng</span>
+                                </td>
+                                <td class="text-center">
+                                    <a th:href="@{/inventory/edit/{id}(id=${item.maKho})}" class="btn btn-warning btn-sm me-1">Sửa</a>
+                                    <a th:href="@{/inventory/delete/{id}(id=${item.maKho})}" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc muốn xóa bản ghi này?')">Xóa</a>
+                                </td>
+                            </tr>
+                            <tr th:if="${inventories == null || #lists.isEmpty(inventories)}">
+                                <td colspan="7" class="text-center py-4 text-muted">Chưa có bản ghi tồn kho nào.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

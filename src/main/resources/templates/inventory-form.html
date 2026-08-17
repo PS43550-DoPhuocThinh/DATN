@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhập Kho Hàng - CafePAL</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <!-- Header Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand fw-bold" th:href="@{/}">☕ CafePAL</a>
+            <div class="navbar-nav me-auto">
+                <a class="nav-link" th:href="@{/}">Trang chủ</a>
+                <a class="nav-link" th:href="@{/pos}">Order Tại Bàn (POS)</a>
+                <a class="nav-link" th:href="@{/products}">Quản lý Thực Đơn</a>
+                <a class="nav-link active" th:href="@{/inventory}">Quản lý Kho Hàng</a>
+                <a class="nav-link" th:href="@{/users}">Quản lý Người Dùng</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-dark text-white fw-bold text-center">
+                        <span th:text="${inventory.maKho == null ? 'NHẬP KHO MỚI' : 'CẬP NHẬT KHO HÀNG'}">NHẬP KHO</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <form th:action="@{/inventory/save}" method="post">
+                            <input type="hidden" name="maKho" th:value="${inventory.maKho}" />
+
+                            <!-- Chọn Sản phẩm -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Sản phẩm / Món:</label>
+                                <select class="form-select" name="sanPham.maSanPham" required>
+                                    <option value="" disabled th:selected="${inventory.sanPham == null}">-- Chọn sản phẩm --</option>
+                                    <option th:each="sp : ${products}" 
+                                            th:value="${sp.maSanPham}" 
+                                            th:text="${sp.tenSanPham + ' (Size ' + sp.kichCo + ')'}"
+                                            th:selected="${inventory.sanPham != null && inventory.sanPham.maSanPham == sp.maSanPham}">
+                                    </option>
+                                </select>
+                            </div>
+
+                            <!-- Nhà cung cấp -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Nhà cung cấp:</label>
+                                <input type="text" class="form-control" name="nhaCungCap" th:value="${inventory.nhaCungCap}" placeholder="VD: Nông trại Đà Lạt, Vinamilk..." required>
+                            </div>
+
+                            <!-- Ngày nhập kho -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Ngày nhập kho:</label>
+                                <input type="date" class="form-control" name="ngayNhapKho" th:value="${inventory.ngayNhapKho}" required>
+                            </div>
+
+                            <!-- Số lượng tồn -->
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">Số lượng còn:</label>
+                                <input type="number" min="0" class="form-control" name="soLuongCon" th:value="${inventory.soLuongCon}" placeholder="VD: 100" required>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <a th:href="@{/inventory}" class="btn btn-outline-secondary">Quay lại</a>
+                                <button type="submit" class="btn btn-primary">Lưu kho</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

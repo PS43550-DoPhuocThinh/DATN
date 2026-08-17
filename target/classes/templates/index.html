@@ -1,44 +1,109 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Trang chủ Cafe PAL</title>
-    <!-- Bootstrap 5 CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CafePAL - Trang Chủ</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #F5EBE0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #3E2723; }
-        .cafe-btn { background-color: #5D4037; color: white; border: none; }
-        .cafe-btn:hover { background-color: #4E342E; color: white; }
-        .hero-section { background-color: #FFF8F0; padding: 60px 20px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    </style>
 </head>
-<body class="d-flex align-items-center justify-content-center vh-100">
+<body>
 
-    <div class="container text-center hero-section col-md-6 col-lg-5">
-        <h1 class="fw-bold mb-4" style="color: #4E342E;">☕ Xin chào đến với Cafe PAL</h1>
-        <p class="text-muted mb-4">Hương vị cà phê đánh thức mọi giác quan của bạn.</p>
-
-        <!-- Trạng thái chưa đăng nhập -->
-        <div sec:authorize="isAnonymous()">
-            <a href="/login" class="btn cafe-btn btn-lg w-100 mb-3 shadow-sm">Đăng nhập ngay</a>
-            <p>Chưa có tài khoản? <a href="/register" class="text-decoration-none" style="color: #5D4037; font-weight: bold;">Đăng ký</a></p>
-        </div>
-
-        <!-- Trạng thái đã đăng nhập -->
-        <div sec:authorize="isAuthenticated()" class="text-start p-4 rounded bg-white shadow-sm">
-            <h5 class="mb-3">👤 Thông tin tài khoản:</h5>
-            <p class="mb-1"><strong>Xin chào:</strong> <span class="text-primary" sec:authentication="name"></span></p>
-            <p class="mb-4"><strong>Quyền:</strong> <span class="badge bg-secondary" sec:authentication="principal.authorities"></span></p>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" th:href="@{/}">☕ CafePAL</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
             
-            <form th:action="@{/logout}" method="post">
-                <button type="submit" class="btn btn-outline-danger w-100">Đăng xuất</button>
-            </form>
-            <div class="mt-3 text-center">
-                <a th:href="@{/users}" class="text-decoration-none" style="color: #5D4037;">👉 Quản lý người dùng</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" th:href="@{/}">Trang chủ</a>
+                    </li>
+                    <!-- Nút Thực Đơn trên Navbar -->
+                    <li class="nav-item">
+                        <a class="nav-link text-info" th:href="@{/products}">Quản lý Thực đơn</a>
+                    </li>
+                    <!-- Menu Quản lý Người dùng -->
+                    <li class="nav-item" th:if="${isAdmin}">
+                        <a class="nav-link text-warning fw-semibold" th:href="@{/users}">Quản lý Người dùng</a>
+                    </li>
+					<li class="nav-item">
+					    <a class="nav-link text-warning" th:href="@{/inventory}">Quản lý Kho Hàng</a>
+					</li>
+                </ul>
+
+                <div class="d-flex align-items-center">
+                    <!-- Chưa đăng nhập -->
+                    <div th:if="${currentUser == null}">
+                        <a class="btn btn-outline-light me-2" th:href="@{/login}">Đăng nhập</a>
+                        <a class="btn btn-warning" th:href="@{/register}">Đăng ký</a>
+                    </div>
+
+                    <!-- Đã đăng nhập -->
+                    <div th:if="${currentUser != null}" class="text-light d-flex align-items-center">
+                        <span class="me-3">Xin chào, <strong th:text="${currentUser}">User</strong></span>
+                        <form th:action="@{/logout}" method="post" class="d-inline m-0">
+                            <button class="btn btn-danger btn-sm" type="submit">Đăng xuất</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Banner Hero -->
+    <div class="bg-light py-5 mb-4 text-center border-bottom">
+        <div class="container">
+            <h1 class="display-4 fw-bold">Chào mừng đến với CafePAL</h1>
+            <p class="lead text-muted">Hệ thống quản trị và trải nghiệm cà phê trực tuyến.</p>
+            <div th:if="${currentUser == null}">
+                <a th:href="@{/register}" class="btn btn-primary btn-lg mt-3">Tham gia ngay</a>
             </div>
         </div>
     </div>
 
+    <!-- Nội dung chính -->
+    <div class="container my-5">
+        <div class="row g-4">
+            <!-- Card Menu Đồ Uống có nút Xem Menu -->
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm text-center p-3">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                        <div>
+                            <h5 class="card-title fw-bold">Menu Đồ Uống</h5>
+                            <p class="card-text text-muted">Khám phá các loại cà phê nguyên chất và đồ uống đặc biệt.</p>
+                        </div>
+                        <a th:href="@{/products}" class="btn btn-outline-primary mt-3">Xem Thực Đơn &rarr;</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm text-center p-3">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                        <div>
+                            <h5 class="card-title fw-bold">Đặt Bàn / Gọi Món</h5>
+							<a th:href="@{/pos}" class="btn btn-primary mt-3">Vào Màn Hình POS &rarr;</a>
+                        </div>
+                        <button class="btn btn-outline-secondary mt-3" disabled>Sắp ra mắt</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm text-center p-3">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                        <div>
+                            <h5 class="card-title fw-bold">Ưu Đãi Thành Viên</h5>
+                            <p class="card-text text-muted">Tích điểm và nhận các voucher giảm giá hấp dẫn.</p>
+                        </div>
+                        <button class="btn btn-outline-secondary mt-3" disabled>Sắp ra mắt</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

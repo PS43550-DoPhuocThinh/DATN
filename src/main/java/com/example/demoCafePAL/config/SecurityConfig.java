@@ -18,31 +18,20 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-        .authorizeHttpRequests(auth -> auth
-        	    // Thêm dòng này để phân quyền:
-        	    .requestMatchers("/users/**").hasRole("ADMIN") 
-        	    
-        	    .requestMatchers("/admin/**").hasRole("ADMIN")
-        	    .requestMatchers("/staff/**").hasAnyRole("ADMIN", "STAFF")
-        	    .requestMatchers("/", "/login", "/register", "/css/**", "/js/**", "/error").permitAll()
-        	    .anyRequest().authenticated()
-        	)
+            .authorizeHttpRequests(auth -> auth
+            		.requestMatchers("/", "/home", "/index", "/login", "/register", "/products/**", "/pos/**", "/inventory/**", "/uploads/**", "/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/users/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+            )
             .formLogin(form -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/")
-                .failureUrl("/login?error")
+                .defaultSuccessUrl("/", true)
                 .permitAll()
             )
-            .rememberMe(remember -> remember
-                .key("CafePalSecretKey")
-                .tokenValiditySeconds(86400) // Ghi nhớ 1 ngày
-                .rememberMeParameter("remember-me")
-            )
             .logout(logout -> logout
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/login?logout")
+                .logoutSuccessUrl("/")
                 .permitAll()
             );
 

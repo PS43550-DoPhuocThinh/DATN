@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS - Bán Hàng & Quản Lý Bàn - CafePAL</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .table-btn { height: 75px; font-weight: bold; }
+        .product-card { cursor: pointer; transition: 0.2s; }
+        .product-card:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.15) !important; }
+        .order-panel { height: calc(100vh - 120px); display: flex; flex-direction: column; }
+        .order-items { flex: 1; overflow-y: auto; }
+        .product-img { height: 100px; width: 100%; object-fit: cover; border-radius: 6px; }
+    </style>
+</head>
+<body class="bg-light">
+
+    <!-- Header Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold" th:href="@{/}">☕ CafePAL POS</a>
+            <div class="navbar-nav me-auto">
+                <a class="nav-link" th:href="@{/}">Trang chủ</a>
+                <a class="nav-link active" th:href="@{/pos}">Order Tại Bàn (POS)</a>
+                <a class="nav-link" th:href="@{/products}">Quản lý Thực Đơn</a>
+                <a class="nav-link" th:href="@{/inventory}">Quản lý Kho Hàng</a>
+                <a class="nav-link" th:href="@{/users}">Quản lý Người Dùng</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4 py-3">
+        <div class="row g-3">
+            
+            <!-- SƠ ĐỒ BÀN -->
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="m-0 fw-bold">🏷️ Danh Sách Bàn</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-4" th:each="entry : ${tableStatusMap}">
+                                <a th:href="@{/pos(table=${entry.key})}" 
+                                   th:class="${entry.key == currentTable ? 'btn btn-primary w-100 table-btn d-flex flex-column justify-content-center align-items-center' : (entry.value ? 'btn btn-danger w-100 table-btn d-flex flex-column justify-content-center align-items-center' : 'btn btn-outline-secondary w-100 table-btn d-flex flex-column justify-content-center align-items-center')}">
+                                    <span th:text="'Bàn ' + ${entry.key}">Bàn 1</span>
+                                    <small class="badge" th:classappend="${entry.value ? 'bg-warning text-dark' : 'bg-light text-dark'}" 
+                                           th:text="${entry.value ? 'Có khách' : 'Trống'}">Trống</small>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- THỰC ĐƠN CHỌN MÓN -->
+            <div class="col-md-5">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white py-2 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 fw-bold">🍹 Thực Đơn</h6>
+                        <form th:action="@{/pos}" method="get" class="d-flex">
+                            <input type="hidden" name="table" th:value="${currentTable}" />
+                            <input type="text" name="keyword" th:value="${keyword}" class="form-control form-control-sm me-1" placeholder="Tìm món...">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">Tìm</button>
+                        </form>
+                    </div>
+                    <div class="card-body" style="height: calc(100vh - 180px); overflow-y: auto;">
+                        <div class="row g-2">
+                            <div class="col-6 col-lg-4" th:each="item : ${menuItems}">
+                                <div class="card h-100 shadow-sm border-0 product-card bg-white p-2">
+                                    <img th:src="${item.hinhAnh != null && !#strings.isEmpty(item.hinhAnh) ? item.hinhAnh : 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=200'}" 
+                                         class="product-img mb-2" alt="Ảnh món">
+                                    <div class="d-flex flex-column flex-grow-1 justify-content-between">
+                                        <div>
+                                            <strong class="d-block text-dark text-truncate" th:text="${item.tenSanPham}">Cà phê</strong>
+                                            <small class="text-muted d-block" th:text="${item.loai} + ' | ' + ${item.kichCo}">Cà phê</small>
+                                        </div>
+                                        <div class="mt-2">
+                                            <span class="text-success fw-bold d-block mb-1" th:text="${#numbers.formatDecimal(item.gia, 0, 'COMMA', 0, 'POINT')} + ' đ'">25.000 đ</span>
+                                            <form th:action="@{/pos/add-item}" method="post">
+                                                <input type="hidden" name="table" th:value="${currentTable}" />
+                                                <input type="hidden" name="maSanPham" th:value="${item.maSanPham}" />
+                                                <button type="submit" class="btn btn-sm btn-outline-primary w-100 py-1">+ Thêm</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HÓA ĐƠN & THANH TOÁN -->
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 order-panel">
+                    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-2">
+                        <span class="fw-bold" th:text="'🧾 Đơn Hàng: Bàn ' + ${currentTable}">Bàn 1</span>
+                        <form th:action="@{/pos/clear-table}" method="post" class="d-inline m-0">
+                            <input type="hidden" name="maDonHang" th:value="${order.maDonHang}" />
+                            <input type="hidden" name="table" th:value="${currentTable}" />
+                            <button type="submit" class="btn btn-outline-warning btn-sm py-0" onclick="return confirm('Bạn có chắc muốn xóa đơn và trả bàn trống?')">
+                                🔄 Trả bàn trống
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card-body p-2 order-items">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                                <tr class="text-muted small">
+                                    <th>Món</th>
+                                    <th class="text-center">SL</th>
+                                    <th class="text-end">Tiền</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="ct : ${order.danhSachChiTiet}">
+                                    <td>
+                                        <strong th:text="${ct.sanPham.tenSanPham}">Cà phê</strong>
+                                        <div class="small text-muted" th:text="${ct.sanPham.kichCo}">M</div>
+                                    </td>
+                                    <td class="text-center text-nowrap">
+                                        <a th:href="@{/pos/update-qty(table=${currentTable}, maChiTiet=${ct.maChiTiet}, delta=-1)}" class="btn btn-sm btn-light border py-0 px-2">-</a>
+                                        <span class="mx-1 fw-bold" th:text="${ct.soLuong}">1</span>
+                                        <a th:href="@{/pos/update-qty(table=${currentTable}, maChiTiet=${ct.maChiTiet}, delta=1)}" class="btn btn-sm btn-light border py-0 px-2">+</a>
+                                    </td>
+                                    <td class="text-end fw-bold" th:text="${#numbers.formatDecimal(ct.tongCong, 0, 'COMMA', 0, 'POINT')} + ' đ'">25.000 đ</td>
+                                    <td class="text-end">
+                                        <a th:href="@{/pos/remove-item(table=${currentTable}, maChiTiet=${ct.maChiTiet})}" class="text-danger text-decoration-none fw-bold">&times;</a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(order.danhSachChiTiet)}">
+                                    <td colspan="4" class="text-center py-5 text-muted">Bàn chưa có món nào.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Khu vực Tính tiền & Nút Mở QR -->
+                    <div class="card-footer bg-white border-top p-3" th:if="${!#lists.isEmpty(order.danhSachChiTiet)}">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-bold">Tổng Thanh Toán:</span>
+                            <h4 class="text-danger fw-bold m-0" th:text="${#numbers.formatDecimal(order.tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</h4>
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <form th:action="@{/pos/checkout}" method="post">
+                                    <input type="hidden" name="maDonHang" th:value="${order.maDonHang}" />
+                                    <input type="hidden" name="table" th:value="${currentTable}" />
+                                    <input type="hidden" name="phuongThuc" value="TIEN_MAT" />
+                                    <button type="submit" class="btn btn-success w-100 py-2 fw-bold" onclick="return confirm('Xác nhận thu tiền mặt?')">
+                                        💵 Tiền Mặt
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="col-6">
+                                <button type="button" class="btn btn-primary w-100 py-2 fw-bold" data-bs-toggle="modal" data-bs-target="#qrModal">
+                                    📱 Quét VietQR
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL HIỂN THỊ MÃ VIETQR ĐỘNG -->
+    <div class="modal fade" id="qrModal" tabindex="-1" th:if="${!#lists.isEmpty(order.danhSachChiTiet)}">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold">📱 Quét Mã VietQR Thanh Toán</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center p-4">
+                    <p class="text-muted mb-2">Mở ứng dụng Ngân hàng hoặc Ví điện tử bất kỳ để quét</p>
+                    
+                    <!-- Tạo link VietQR động từ MB Bank (Thay STK của bạn vào đây) -->
+                    <img th:src="@{'https://img.vietqr.io/image/MB-0348731999-compact2.png?amount=' + ${#numbers.formatDecimal(order.tongTien, 0, 'POINT', 0, 'POINT')} + '&addInfo=CafePAL%20Ban%20' + ${currentTable} + '%20DH' + ${order.maDonHang} + '&accountName=CAFE%20PAL'}"
+                         class="img-fluid rounded border shadow-sm mb-3" style="max-height: 320px;" alt="Mã VietQR">
+                    
+                    <h4 class="text-danger fw-bold" th:text="${#numbers.formatDecimal(order.tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</h4>
+                    <p class="small text-muted mb-0">Nội dung: <strong>CafePAL Ban <span th:text="${currentTable}"></span> DH<span th:text="${order.maDonHang}"></span></strong></p>
+                </div>
+                <div class="modal-footer bg-light">
+                    <form th:action="@{/pos/checkout}" method="post" class="w-100">
+                        <input type="hidden" name="maDonHang" th:value="${order.maDonHang}" />
+                        <input type="hidden" name="table" th:value="${currentTable}" />
+                        <input type="hidden" name="phuongThuc" value="CHUYEN_KHOAN" />
+                        <button type="submit" class="btn btn-success w-100 py-2 fw-bold">
+                            ✅ ĐÃ NHẬN TIỀN (XUẤT HÓA ĐƠN)
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

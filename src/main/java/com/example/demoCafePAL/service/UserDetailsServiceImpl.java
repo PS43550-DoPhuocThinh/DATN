@@ -21,7 +21,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         NguoiDung nguoiDung = nguoiDungRepository.findByTenDangNhap(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Tài khoản không tồn tại!"));
 
-        String roleName = nguoiDung.getVaiTro().getTenVaiTro();
+        String roleName = (nguoiDung.getVaiTro() != null) ? nguoiDung.getVaiTro().getTenVaiTro() : "GUEST";
+        
+        // Loại bỏ tiền tố ROLE_ nếu có sẵn trong DB để tránh bị nhân đôi ROLE_ROLE_
+        if (roleName.startsWith("ROLE_")) {
+            roleName = roleName.substring(5);
+        }
 
         return User.builder()
                 .username(nguoiDung.getTenDangNhap())

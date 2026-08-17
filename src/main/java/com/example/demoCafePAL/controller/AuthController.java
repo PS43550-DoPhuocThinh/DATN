@@ -1,8 +1,11 @@
 package com.example.demoCafePAL.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -23,9 +26,20 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @GetMapping("/")
-    public String home() {
-        return "index"; // Trả về trang chủ (tạo file index.html trong templates)
+    // Xử lý trang chủ tại đây
+    @GetMapping({"/", "/home", "/index"})
+    public String homePage(Authentication authentication, Model model) {
+        if (authentication != null && authentication.isAuthenticated() 
+                && !(authentication instanceof AnonymousAuthenticationToken)) {
+            model.addAttribute("currentUser", authentication.getName());
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+            model.addAttribute("isAdmin", isAdmin);
+        } else {
+            model.addAttribute("currentUser", null);
+            model.addAttribute("isAdmin", false);
+        }
+        return "index";
     }
 
     @GetMapping("/login")
@@ -43,7 +57,11 @@ public class AuthController {
         nguoiDung.setMatKhau(passwordEncoder.encode(nguoiDung.getMatKhau()));
         
         VaiTro roleGuest = vaiTroRepository.findByTenVaiTro("GUEST")
-                .orElseThrow(() -> new RuntimeException("Chưa thiết lập quyền GUEST trong CSDL"));
+                .orElseGet(() -> {
+                    VaiTro newRole = new VaiTro();
+                    newRole.setTenVaiTro("GUEST");
+                    return vaiTroRepository.save(newRole);
+                });
         nguoiDung.setVaiTro(roleGuest);
         
         nguoiDungRepository.save(nguoiDung);
