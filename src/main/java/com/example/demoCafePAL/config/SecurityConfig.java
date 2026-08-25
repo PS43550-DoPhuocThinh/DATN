@@ -12,7 +12,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // Dùng BCrypt đồng bộ với hàm đăng ký
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -23,9 +22,15 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
+                // Công khai: Xem thực đơn, Trang chủ, Đăng nhập, Đăng ký, Tệp tĩnh
                 .requestMatchers("/", "/home", "/index", "/login", "/register", "/products", "/uploads/**", "/css/**", "/js/**", "/images/**").permitAll()
-                .requestMatchers("/pos/**", "/inventory/**", "/products/add", "/products/edit/**", "/products/save", "/products/delete/**").hasAnyAuthority("ADMIN", "STAFF")
-                .requestMatchers("/users/**").hasAuthority("ADMIN")
+                
+                // Màn hình Bán hàng (POS): Cả Nhân viên (STAFF) và Quản lý (ADMIN) đều dùng được
+                .requestMatchers("/pos/**").hasAnyAuthority("ADMIN", "STAFF")
+                
+                // Quản lý Kho hàng, Thêm/Sửa/Xóa Món, Quản lý Nhân sự: CHỈ DÀNH CHO ADMIN
+                .requestMatchers("/inventory/**", "/users/**", "/products/add", "/products/edit/**", "/products/save", "/products/delete/**").hasAuthority("ADMIN")
+                
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

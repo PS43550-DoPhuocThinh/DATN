@@ -30,7 +30,7 @@
 </head>
 <body>
 
-    <!-- Header Navbar Chuẩn Toàn Hệ Thống -->
+    <!-- Header Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top py-2">
         <div class="container-fluid px-4">
             <a class="navbar-brand fw-bold fs-5 d-flex align-items-center" th:href="@{/}">
@@ -44,15 +44,18 @@
                     <li class="nav-item">
                         <a class="nav-link active fw-bold text-white" th:href="@{/}"><i class="bi bi-house-door me-1"></i> Trang chủ</a>
                     </li>
+                    <!-- Bán hàng: Cả Staff và Admin đều thấy -->
                     <li class="nav-item" th:if="${isStaffOrAdmin}">
                         <a class="nav-link text-light" th:href="@{/pos}"><i class="bi bi-grid-3x3-gap-fill me-1 text-info"></i> Bán Hàng (POS)</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-light" th:href="@{/products}"><i class="bi bi-cup-straw me-1 text-warning"></i> Quản lý Thực Đơn</a>
+                        <a class="nav-link text-light" th:href="@{/products}"><i class="bi bi-cup-straw me-1 text-warning"></i> Thực Đơn</a>
                     </li>
-                    <li class="nav-item" th:if="${isStaffOrAdmin}">
+                    <!-- Kho hàng: CHỈ ADMIN THẤY -->
+                    <li class="nav-item" th:if="${isAdmin}">
                         <a class="nav-link text-light" th:href="@{/inventory}"><i class="bi bi-box-seam-fill me-1 text-success"></i> Quản lý Kho Hàng</a>
                     </li>
+                    <!-- Quản lý người dùng: CHỈ ADMIN THẤY -->
                     <li class="nav-item" th:if="${isAdmin}">
                         <a class="nav-link text-warning fw-semibold" th:href="@{/users}"><i class="bi bi-people-fill me-1"></i> Quản lý Người Dùng</a>
                     </li>
@@ -66,7 +69,7 @@
                     <div th:if="${currentUser != null}" class="text-light d-flex align-items-center">
                         <div class="me-3 text-end d-none d-sm-block">
                             <small class="text-secondary d-block" style="font-size: 11px;">Tài khoản</small>
-                            <span class="fw-bold text-warning" th:text="${currentUser}">Admin</span>
+                            <span class="fw-bold text-warning" th:text="${currentUser}">User</span>
                         </div>
                         <form th:action="@{/logout}" method="post" class="d-inline m-0">
                             <button class="btn btn-danger btn-sm px-3 rounded-pill" type="submit">
@@ -103,6 +106,8 @@
     <!-- Phân Hệ Chức Năng -->
     <main class="container my-5">
         <div class="row g-4 justify-content-center">
+            
+            <!-- Thực đơn (Mọi người) -->
             <div class="col-md-6 col-lg-4">
                 <div class="card h-100 feature-card shadow-sm text-center p-4">
                     <div class="card-icon bg-warning-subtle text-warning">
@@ -114,6 +119,7 @@
                 </div>
             </div>
 
+            <!-- Bán Hàng (Staff & Admin) -->
             <div class="col-md-6 col-lg-4" th:if="${isStaffOrAdmin}">
                 <div class="card h-100 feature-card shadow-sm text-center p-4">
                     <div class="card-icon bg-danger-subtle text-danger">
@@ -125,17 +131,19 @@
                 </div>
             </div>
 
-            <div class="col-md-6 col-lg-4" th:if="${isStaffOrAdmin}">
+            <!-- Kho Hàng (CHỈ DÀNH CHO ADMIN) -->
+            <div class="col-md-6 col-lg-4" th:if="${isAdmin}">
                 <div class="card h-100 feature-card shadow-sm text-center p-4">
                     <div class="card-icon bg-success-subtle text-success">
                         <i class="bi bi-box-seam"></i>
                     </div>
                     <h5 class="fw-bold mb-2">Quản Lý Tồn Kho</h5>
-                    <p class="text-muted small mb-4">Theo dõi lượng hàng tồn, nhà cung cấp và nguyên vật liệu pha chế.</p>
+                    <p class="text-muted small mb-4">Kiểm soát nguyên vật liệu, nhập hàng nhà cung cấp và theo dõi số lượng tồn.</p>
                     <a th:href="@{/inventory}" class="btn btn-outline-secondary w-100 mt-auto">Xem Kho Hàng &rarr;</a>
                 </div>
             </div>
 
+            <!-- Ưu đãi thành viên (Khách hàng) -->
             <div class="col-md-6 col-lg-4" th:if="${!isStaffOrAdmin}">
                 <div class="card h-100 feature-card shadow-sm text-center p-4">
                     <div class="card-icon bg-info-subtle text-info">
