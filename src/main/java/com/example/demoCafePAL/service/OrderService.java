@@ -172,4 +172,20 @@ public class OrderService {
         BigDecimal phuPhi = order.getSoTienPhuPhi() != null ? order.getSoTienPhuPhi() : BigDecimal.ZERO;
         order.setTongTien(sum.subtract(chietKhau).add(phuPhi));
     }
+ // Thêm các hàm này vào trong class OrderService
+
+    public List<DatMon> getOrderHistory(Integer table, String paymentMethod) {
+        String payment = (paymentMethod != null && !paymentMethod.trim().isEmpty() && !"ALL".equalsIgnoreCase(paymentMethod)) 
+                         ? paymentMethod.trim() : null;
+        return datMonRepo.filterOrderHistory(table, payment);
+    }
+
+    // Tính tổng doanh thu của danh sách đơn đã thanh toán
+    public BigDecimal calculateTotalRevenue(List<DatMon> orders) {
+        if (orders == null || orders.isEmpty()) return BigDecimal.ZERO;
+        return orders.stream()
+                .filter(o -> "DA_THANH_TOAN".equalsIgnoreCase(o.getTrangThai()))
+                .map(o -> o.getTongTien() != null ? o.getTongTien() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 }

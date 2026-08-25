@@ -55,6 +55,9 @@
                     <li class="nav-item" th:if="${isAdmin}">
                         <a class="nav-link text-light" th:href="@{/inventory}"><i class="bi bi-box-seam-fill me-1 text-success"></i> Quản lý Kho Hàng</a>
                     </li>
+					<li class="nav-item" th:if="${isStaffOrAdmin}">
+					    <a class="nav-link text-light" th:href="@{/pos/history}"><i class="bi bi-clock-history me-1"></i> Lịch Sử Hóa Đơn</a>
+					</li>
                     <!-- Quản lý người dùng: CHỈ ADMIN THẤY -->
                     <li class="nav-item" th:if="${isAdmin}">
                         <a class="nav-link text-warning fw-semibold" th:href="@{/users}"><i class="bi bi-people-fill me-1"></i> Quản lý Người Dùng</a>
