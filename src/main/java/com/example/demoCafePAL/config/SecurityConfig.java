@@ -12,26 +12,34 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    // Dùng BCrypt đồng bộ với hàm đăng ký
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-            		.requestMatchers("/", "/home", "/index", "/login", "/register", "/products/**", "/pos/**", "/inventory/**", "/uploads/**", "/css/**", "/js/**", "/images/**").permitAll()
-                .requestMatchers("/users/**").hasRole("ADMIN")
+                .requestMatchers("/", "/home", "/index", "/login", "/register", "/products", "/uploads/**", "/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/pos/**", "/inventory/**", "/products/add", "/products/edit/**", "/products/save", "/products/delete/**").hasAnyAuthority("ADMIN", "STAFF")
+                .requestMatchers("/users/**").hasAuthority("ADMIN")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")
+                .loginProcessingUrl("/login")
+                .usernameParameter("tenDangNhap")
+                .passwordParameter("matKhau")
                 .defaultSuccessUrl("/", true)
+                .failureUrl("/login?error=true")
                 .permitAll()
             )
             .logout(logout -> logout
-                .logoutSuccessUrl("/")
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login?logout=true")
                 .permitAll()
             );
 

@@ -1,6 +1,7 @@
 package com.example.demoCafePAL.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import com.example.demoCafePAL.entity.NguoiDung;
 import com.example.demoCafePAL.repository.NguoiDungRepository;
+
+import java.util.Collections;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -22,16 +25,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("Tài khoản không tồn tại!"));
 
         String roleName = (nguoiDung.getVaiTro() != null) ? nguoiDung.getVaiTro().getTenVaiTro() : "GUEST";
-        
-        // Loại bỏ tiền tố ROLE_ nếu có sẵn trong DB để tránh bị nhân đôi ROLE_ROLE_
-        if (roleName.startsWith("ROLE_")) {
-            roleName = roleName.substring(5);
-        }
 
-        return User.builder()
-                .username(nguoiDung.getTenDangNhap())
-                .password(nguoiDung.getMatKhau())
-                .roles(roleName) 
-                .build();
+        // Gán trực tiếp quyền (Authority) không bị tự ép thêm tiền tố ROLE_
+        return new User(
+                nguoiDung.getTenDangNhap(),
+                nguoiDung.getMatKhau(),
+                Collections.singletonList(new SimpleGrantedAuthority(roleName))
+        );
     }
 }
