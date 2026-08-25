@@ -5,19 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nhập Kho Hàng - CafePAL</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 </head>
 <body class="bg-light">
 
-    <!-- Header Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-        <div class="container">
-            <a class="navbar-brand fw-bold" th:href="@{/}">☕ CafePAL</a>
-            <div class="navbar-nav me-auto">
-                <a class="nav-link" th:href="@{/}">Trang chủ</a>
-                <a class="nav-link" th:href="@{/pos}">Order Tại Bàn (POS)</a>
-                <a class="nav-link" th:href="@{/products}">Quản lý Thực Đơn</a>
-                <a class="nav-link active" th:href="@{/inventory}">Quản lý Kho Hàng</a>
-                <a class="nav-link" th:href="@{/users}">Quản lý Người Dùng</a>
+    <!-- Header Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top py-2">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold fs-5 d-flex align-items-center" th:href="@{/}">
+                <i class="bi bi-cup-hot-fill me-2 text-warning"></i> CafePAL
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}"><i class="bi bi-house-door me-1"></i> Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" th:href="@{/pos}"><i class="bi bi-grid-3x3-gap-fill me-1 text-info"></i> Bán Hàng (POS)</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" th:href="@{/products}"><i class="bi bi-cup-straw me-1 text-warning"></i> Quản lý Thực Đơn</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active fw-bold text-success" th:href="@{/inventory}"><i class="bi bi-box-seam-fill me-1"></i> Quản lý Kho Hàng</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-warning fw-semibold" th:href="@{/users}"><i class="bi bi-people-fill me-1"></i> Quản lý Người Dùng</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <a th:href="@{/inventory}" class="btn btn-outline-light btn-sm px-3">
+                        <i class="bi bi-arrow-left me-1"></i> Quay lại kho
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
@@ -33,7 +56,6 @@
                         <form th:action="@{/inventory/save}" method="post">
                             <input type="hidden" name="maKho" th:value="${inventory.maKho}" />
 
-                            <!-- Chọn Sản phẩm -->
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Sản phẩm / Món:</label>
                                 <select class="form-select" name="sanPham.maSanPham" required>
@@ -46,19 +68,16 @@
                                 </select>
                             </div>
 
-                            <!-- Nhà cung cấp -->
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Nhà cung cấp:</label>
                                 <input type="text" class="form-control" name="nhaCungCap" th:value="${inventory.nhaCungCap}" placeholder="VD: Nông trại Đà Lạt, Vinamilk..." required>
                             </div>
 
-                            <!-- Ngày nhập kho -->
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Ngày nhập kho:</label>
                                 <input type="date" class="form-control" name="ngayNhapKho" th:value="${inventory.ngayNhapKho}" required>
                             </div>
 
-                            <!-- Số lượng tồn -->
                             <div class="mb-4">
                                 <label class="form-label fw-semibold">Số lượng còn:</label>
                                 <input type="number" min="0" class="form-control" name="soLuongCon" th:value="${inventory.soLuongCon}" placeholder="VD: 100" required>

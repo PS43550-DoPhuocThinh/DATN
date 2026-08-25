@@ -25,6 +25,7 @@ public class OrderController {
     @GetMapping
     public String showPos(@RequestParam(value = "table", required = false, defaultValue = "1") Integer tableNumber,
                           @RequestParam(value = "keyword", required = false) String keyword,
+                          @RequestParam(value = "category", required = false, defaultValue = "ALL") String category,
                           Authentication auth, Model model) {
         String username = (auth != null) ? auth.getName() : null;
 
@@ -34,7 +35,9 @@ public class OrderController {
         DatMon order = orderService.getOrCreateActiveOrder(tableNumber, username);
         model.addAttribute("order", order);
 
-        model.addAttribute("menuItems", sanPhamService.searchByName(keyword));
+        model.addAttribute("menuItems", sanPhamService.searchAndFilter(keyword, category));
+        model.addAttribute("categories", sanPhamService.getAllCategories());
+        model.addAttribute("selectedCategory", category);
         model.addAttribute("keyword", keyword);
 
         return "pos";
@@ -64,7 +67,6 @@ public class OrderController {
         return "redirect:/pos?table=" + tableNumber;
     }
 
-    // Xử lý Hủy đơn / Trả bàn trống
     @PostMapping("/clear-table")
     public String clearTable(@RequestParam("maDonHang") Integer maDonHang,
                              @RequestParam("table") Integer tableNumber) {
@@ -72,7 +74,6 @@ public class OrderController {
         return "redirect:/pos?table=" + tableNumber;
     }
 
- // 1. Sau khi thanh toán chuyển thẳng sang trang Bill
     @PostMapping("/checkout")
     public String checkout(@RequestParam("maDonHang") Integer maDonHang,
                            @RequestParam("table") Integer tableNumber,
@@ -83,7 +84,6 @@ public class OrderController {
         return "redirect:/pos/bill/" + maDonHang;
     }
 
-    // 2. Hiển thị Hóa Đơn Điện Tử
     @GetMapping("/bill/{id}")
     public String viewBill(@PathVariable("id") Integer id, Model model) {
         DatMon order = orderService.getOrderById(id);

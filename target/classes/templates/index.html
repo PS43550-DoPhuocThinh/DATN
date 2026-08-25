@@ -3,49 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CafePAL - Trang Chủ</title>
+    <title>CafePAL - Hệ Thống Quản Trị & Trải Nghiệm Cà Phê</title>
+    <!-- Bootstrap 5 & Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <style>
+        :root {
+            --cafe-primary: #6F4E37;
+            --cafe-dark: #2B1810;
+            --cafe-accent: #D4A373;
+            --cafe-light: #FAEDCD;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #fcfbfa;
+        }
+
+        /* Navbar */
+        .navbar-custom {
+            background-color: var(--cafe-dark) !important;
+            border-bottom: 2px solid var(--cafe-accent);
+        }
+        .nav-link {
+            transition: color 0.2s;
+        }
+        .nav-link:hover {
+            color: var(--cafe-accent) !important;
+        }
+
+        /* Hero Banner */
+        .hero-section {
+            background: linear-gradient(rgba(43, 24, 16, 0.8), rgba(43, 24, 16, 0.85)), 
+                        url('https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+            color: #fff;
+            padding: 90px 0;
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        /* Action Cards */
+        .feature-card {
+            border: none;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            background: #fff;
+            overflow: hidden;
+        }
+        .feature-card:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 12px 25px rgba(111, 78, 55, 0.18) !important;
+        }
+        .card-icon {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 1.8rem;
+        }
+
+        /* Buttons */
+        .btn-cafe {
+            background-color: var(--cafe-primary);
+            color: #fff;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        .btn-cafe:hover {
+            background-color: #583c29;
+            color: #fff;
+        }
+        .btn-outline-cafe {
+            border: 2px solid var(--cafe-primary);
+            color: var(--cafe-primary);
+            font-weight: 600;
+            border-radius: 8px;
+        }
+        .btn-outline-cafe:hover {
+            background-color: var(--cafe-primary);
+            color: #fff;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--cafe-dark);
+            color: #d1c7bd;
+        }
+    </style>
 </head>
 <body>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <!-- Header Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top py-3">
         <div class="container">
-            <a class="navbar-brand fw-bold" th:href="@{/}">☕ CafePAL</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <a class="navbar-brand fw-bold fs-4 d-flex align-items-center" th:href="@{/}">
+                <i class="bi bi-cup-hot-fill me-2 text-warning"></i> CafePAL
+            </a>
+            
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
+                <ul class="navbar-nav me-auto ps-lg-3">
                     <li class="nav-item">
-                        <a class="nav-link active" th:href="@{/}">Trang chủ</a>
+                        <a class="nav-link active fw-semibold" th:href="@{/}">
+                            <i class="bi bi-house-door me-1"></i> Trang chủ
+                        </a>
                     </li>
-                    <!-- Nút Thực Đơn trên Navbar -->
                     <li class="nav-item">
-                        <a class="nav-link text-info" th:href="@{/products}">Quản lý Thực đơn</a>
+                        <a class="nav-link text-light" th:href="@{/pos}">
+                            <i class="bi bi-grid-3x3-gap-fill me-1 text-info"></i> Bán Hàng (POS)
+                        </a>
                     </li>
-                    <!-- Menu Quản lý Người dùng -->
+                    <li class="nav-item">
+                        <a class="nav-link text-light" th:href="@{/products}">
+                            <i class="bi bi-cup-straw me-1 text-warning"></i> Thực Đơn
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" th:href="@{/inventory}">
+                            <i class="bi bi-box-seam-fill me-1 text-success"></i> Kho Hàng
+                        </a>
+                    </li>
                     <li class="nav-item" th:if="${isAdmin}">
-                        <a class="nav-link text-warning fw-semibold" th:href="@{/users}">Quản lý Người dùng</a>
+                        <a class="nav-link text-warning fw-semibold" th:href="@{/users}">
+                            <i class="bi bi-people-fill me-1"></i> Quản Lý Người Dùng
+                        </a>
                     </li>
-					<li class="nav-item">
-					    <a class="nav-link text-warning" th:href="@{/inventory}">Quản lý Kho Hàng</a>
-					</li>
                 </ul>
 
                 <div class="d-flex align-items-center">
-                    <!-- Chưa đăng nhập -->
+                    <!-- Khách chưa đăng nhập -->
                     <div th:if="${currentUser == null}">
-                        <a class="btn btn-outline-light me-2" th:href="@{/login}">Đăng nhập</a>
-                        <a class="btn btn-warning" th:href="@{/register}">Đăng ký</a>
+                        <a class="btn btn-outline-light btn-sm me-2 px-3 fw-semibold" th:href="@{/login}">Đăng nhập</a>
+                        <a class="btn btn-warning btn-sm px-3 fw-bold" th:href="@{/register}">Đăng ký</a>
                     </div>
 
                     <!-- Đã đăng nhập -->
                     <div th:if="${currentUser != null}" class="text-light d-flex align-items-center">
-                        <span class="me-3">Xin chào, <strong th:text="${currentUser}">User</strong></span>
+                        <div class="me-3 text-end d-none d-sm-block">
+                            <small class="text-muted d-block" style="font-size: 11px;">Tài khoản</small>
+                            <span class="fw-bold text-warning" th:text="${currentUser}">User</span>
+                        </div>
                         <form th:action="@{/logout}" method="post" class="d-inline m-0">
-                            <button class="btn btn-danger btn-sm" type="submit">Đăng xuất</button>
+                            <button class="btn btn-danger btn-sm px-3 rounded-pill" type="submit">
+                                <i class="bi bi-box-arrow-right me-1"></i> Đăng xuất
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -53,56 +162,108 @@
         </div>
     </nav>
 
-    <!-- Banner Hero -->
-    <div class="bg-light py-5 mb-4 text-center border-bottom">
+    <!-- Hero Banner -->
+    <header class="hero-section text-center">
         <div class="container">
-            <h1 class="display-4 fw-bold">Chào mừng đến với CafePAL</h1>
-            <p class="lead text-muted">Hệ thống quản trị và trải nghiệm cà phê trực tuyến.</p>
-            <div th:if="${currentUser == null}">
-                <a th:href="@{/register}" class="btn btn-primary btn-lg mt-3">Tham gia ngay</a>
+            <span class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold mb-3">
+                <i class="bi bi-stars"></i> Coffee Management & Experience
+            </span>
+            <h1 class="display-4 fw-bold mb-3">Hệ Thống Vận Hành CafePAL</h1>
+            <p class="lead text-light-50 mx-auto mb-4" style="max-width: 650px; opacity: 0.9;">
+                Tối ưu hóa quy trình gọi món tại bàn, thanh toán QR tự động và kiểm soát tồn kho chuyên nghiệp.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a th:href="@{/pos}" class="btn btn-warning btn-lg px-4 py-2 fw-bold shadow">
+                    <i class="bi bi-laptop me-2"></i> Mở Màn Hình POS
+                </a>
+                <a th:href="@{/products}" class="btn btn-outline-light btn-lg px-4 py-2 fw-semibold">
+                    <i class="bi bi-menu-button-wide me-2"></i> Khám Phá Thực Đơn
+                </a>
             </div>
         </div>
-    </div>
+    </header>
 
-    <!-- Nội dung chính -->
-    <div class="container my-5">
+    <!-- Danh mục chức năng chính -->
+    <main class="container my-5">
+        <div class="text-center mb-5">
+            <h3 class="fw-bold text-dark">Phân Hệ Chức Năng</h3>
+            <p class="text-muted">Chọn nhanh các tác vụ quản lý và vận hành quán</p>
+        </div>
+
         <div class="row g-4">
-            <!-- Card Menu Đồ Uống có nút Xem Menu -->
-            <div class="col-md-4">
-                <div class="card h-100 shadow-sm text-center p-3">
-                    <div class="card-body d-flex flex-column justify-content-between">
-                        <div>
-                            <h5 class="card-title fw-bold">Menu Đồ Uống</h5>
-                            <p class="card-text text-muted">Khám phá các loại cà phê nguyên chất và đồ uống đặc biệt.</p>
-                        </div>
-                        <a th:href="@{/products}" class="btn btn-outline-primary mt-3">Xem Thực Đơn &rarr;</a>
+            <!-- Card 1: Bán hàng POS -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 feature-card shadow-sm text-center p-4">
+                    <div class="card-icon bg-danger-subtle text-danger">
+                        <i class="bi bi-receipt-cutoff"></i>
                     </div>
+                    <h5 class="fw-bold mb-2">Order & Bán Hàng</h5>
+                    <p class="text-muted small mb-4">Sơ đồ bàn trực quan, gọi món, in hóa đơn và thanh toán VietQR động.</p>
+                    <a th:href="@{/pos}" class="btn btn-cafe w-100 mt-auto">Vào Bán Hàng &rarr;</a>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card h-100 shadow-sm text-center p-3">
-                    <div class="card-body d-flex flex-column justify-content-between">
-                        <div>
-                            <h5 class="card-title fw-bold">Đặt Bàn / Gọi Món</h5>
-							<a th:href="@{/pos}" class="btn btn-primary mt-3">Vào Màn Hình POS &rarr;</a>
-                        </div>
-                        <button class="btn btn-outline-secondary mt-3" disabled>Sắp ra mắt</button>
+
+            <!-- Card 2: Thực đơn -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 feature-card shadow-sm text-center p-4">
+                    <div class="card-icon bg-warning-subtle text-warning">
+                        <i class="bi bi-cup-hot"></i>
                     </div>
+                    <h5 class="fw-bold mb-2">Quản Lý Thực Đơn</h5>
+                    <p class="text-muted small mb-4">Cập nhật danh sách món, kích cỡ (size), đơn giá và tải ảnh đại diện.</p>
+                    <a th:href="@{/products}" class="btn btn-outline-cafe w-100 mt-auto">Xem Thực Đơn &rarr;</a>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card h-100 shadow-sm text-center p-3">
-                    <div class="card-body d-flex flex-column justify-content-between">
-                        <div>
-                            <h5 class="card-title fw-bold">Ưu Đãi Thành Viên</h5>
-                            <p class="card-text text-muted">Tích điểm và nhận các voucher giảm giá hấp dẫn.</p>
-                        </div>
-                        <button class="btn btn-outline-secondary mt-3" disabled>Sắp ra mắt</button>
+
+            <!-- Card 3: Kho hàng -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 feature-card shadow-sm text-center p-4">
+                    <div class="card-icon bg-success-subtle text-success">
+                        <i class="bi bi-box-seam"></i>
                     </div>
+                    <h5 class="fw-bold mb-2">Quản Lý Tồn Kho</h5>
+                    <p class="text-muted small mb-4">Theo dõi lượng hàng tồn, nhà cung cấp và cảnh báo sắp hết nguyên liệu.</p>
+                    <a th:href="@{/inventory}" class="btn btn-outline-cafe w-100 mt-auto">Xem Kho Hàng &rarr;</a>
+                </div>
+            </div>
+
+            <!-- Card 4: Người dùng / Nhân sự -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 feature-card shadow-sm text-center p-4">
+                    <div class="card-icon bg-primary-subtle text-primary">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Quản Trị Nhân Sự</h5>
+                    <p class="text-muted small mb-4">Phân quyền tài khoản (Admin/Staff), quản lý thông tin nhân viên quán.</p>
+                    <a th:if="${isAdmin}" th:href="@{/users}" class="btn btn-outline-primary w-100 mt-auto">Quản Lý &rarr;</a>
+                    <button th:if="${!isAdmin}" class="btn btn-light border text-muted w-100 mt-auto" disabled>Chỉ dành cho Admin</button>
                 </div>
             </div>
         </div>
-    </div>
+
+        <!-- Banner thông tin ngắn -->
+        <div class="row mt-5 pt-3">
+            <div class="col-12">
+                <div class="p-4 p-md-5 rounded-4 bg-light border d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+                    <div>
+                        <h4 class="fw-bold mb-1">Cần hỗ trợ vận hành ca làm việc?</h4>
+                        <p class="text-muted mb-0">Hệ thống ghi nhận mọi giao dịch và hóa đơn theo thời gian thực.</p>
+                    </div>
+                    <a th:href="@{/pos}" class="btn btn-dark px-4 py-2 fw-semibold text-nowrap">
+                        <i class="bi bi-clock-history me-1"></i> Xem Ca Hiện Tại
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-4 mt-5">
+        <div class="container text-center">
+            <p class="fw-bold mb-1">☕ CafePAL POS & Management System</p>
+            <p class="small text-muted mb-0">&copy; 2026 CafePAL Project. All rights reserved.</p>
+        </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

@@ -5,27 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>POS - Bán Hàng & Quản Lý Bàn - CafePAL</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
         .table-btn { height: 75px; font-weight: bold; }
         .product-card { cursor: pointer; transition: 0.2s; }
         .product-card:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.15) !important; }
         .order-panel { height: calc(100vh - 120px); display: flex; flex-direction: column; }
         .order-items { flex: 1; overflow-y: auto; }
-        .product-img { height: 100px; width: 100%; object-fit: cover; border-radius: 6px; }
+        .product-img { height: 90px; width: 100%; object-fit: cover; border-radius: 6px; }
+        .category-tab-bar { overflow-x: auto; white-space: nowrap; }
     </style>
 </head>
 <body class="bg-light">
 
-    <!-- Header Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top py-2">
         <div class="container-fluid px-4">
-            <a class="navbar-brand fw-bold" th:href="@{/}">☕ CafePAL POS</a>
-            <div class="navbar-nav me-auto">
-                <a class="nav-link" th:href="@{/}">Trang chủ</a>
-                <a class="nav-link active" th:href="@{/pos}">Order Tại Bàn (POS)</a>
-                <a class="nav-link" th:href="@{/products}">Quản lý Thực Đơn</a>
-                <a class="nav-link" th:href="@{/inventory}">Quản lý Kho Hàng</a>
-                <a class="nav-link" th:href="@{/users}">Quản lý Người Dùng</a>
+            <a class="navbar-brand fw-bold fs-5 d-flex align-items-center" th:href="@{/}">
+                <i class="bi bi-cup-hot-fill me-2 text-warning"></i> CafePAL
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}"><i class="bi bi-house-door me-1"></i> Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active fw-bold text-info" th:href="@{/pos}"><i class="bi bi-grid-3x3-gap-fill me-1"></i> Bán Hàng (POS)</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" th:href="@{/products}"><i class="bi bi-cup-straw me-1 text-warning"></i> Quản lý Thực Đơn</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" th:href="@{/inventory}"><i class="bi bi-box-seam-fill me-1 text-success"></i> Quản lý Kho Hàng</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-warning fw-semibold" th:href="@{/users}"><i class="bi bi-people-fill me-1"></i> Quản lý Người Dùng</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <a th:href="@{/}" class="btn btn-outline-light btn-sm px-3">
+                        <i class="bi bi-arrow-left me-1"></i> Về trang chủ
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
@@ -33,7 +56,7 @@
     <div class="container-fluid px-4 py-3">
         <div class="row g-3">
             
-            <!-- SƠ ĐỒ BÀN -->
+            <!-- CỘT 1: SƠ ĐỒ BÀN (3 Cột) -->
             <div class="col-md-3">
                 <div class="card shadow-sm border-0">
                     <div class="card-header bg-white py-3">
@@ -42,7 +65,7 @@
                     <div class="card-body">
                         <div class="row g-2">
                             <div class="col-4" th:each="entry : ${tableStatusMap}">
-                                <a th:href="@{/pos(table=${entry.key})}" 
+                                <a th:href="@{/pos(table=${entry.key}, category=${selectedCategory}, keyword=${keyword})}" 
                                    th:class="${entry.key == currentTable ? 'btn btn-primary w-100 table-btn d-flex flex-column justify-content-center align-items-center' : (entry.value ? 'btn btn-danger w-100 table-btn d-flex flex-column justify-content-center align-items-center' : 'btn btn-outline-secondary w-100 table-btn d-flex flex-column justify-content-center align-items-center')}">
                                     <span th:text="'Bàn ' + ${entry.key}">Bàn 1</span>
                                     <small class="badge" th:classappend="${entry.value ? 'bg-warning text-dark' : 'bg-light text-dark'}" 
@@ -54,18 +77,36 @@
                 </div>
             </div>
 
-            <!-- THỰC ĐƠN CHỌN MÓN -->
+            <!-- CỘT 2: THỰC ĐƠN CHỌN MÓN & TABS PHÂN LOẠI (5 Cột) -->
             <div class="col-md-5">
                 <div class="card shadow-sm border-0">
                     <div class="card-header bg-white py-2 d-flex justify-content-between align-items-center">
-                        <h6 class="m-0 fw-bold">🍹 Thực Đơn</h6>
+                        <h6 class="m-0 fw-bold">🍹 Thực Đơn PAL COFFEE</h6>
                         <form th:action="@{/pos}" method="get" class="d-flex">
                             <input type="hidden" name="table" th:value="${currentTable}" />
+                            <input type="hidden" name="category" th:value="${selectedCategory}" />
                             <input type="text" name="keyword" th:value="${keyword}" class="form-control form-control-sm me-1" placeholder="Tìm món...">
                             <button type="submit" class="btn btn-sm btn-outline-secondary">Tìm</button>
                         </form>
                     </div>
-                    <div class="card-body" style="height: calc(100vh - 180px); overflow-y: auto;">
+
+                    <!-- Thanh Tab Lọc Danh Mục Món -->
+                    <div class="card-body border-bottom bg-light py-2 category-tab-bar">
+                        <div class="d-flex gap-1">
+                            <a th:href="@{/pos(table=${currentTable}, category='ALL', keyword=${keyword})}" 
+                               th:class="${selectedCategory == 'ALL' || selectedCategory == null ? 'btn btn-sm btn-dark text-nowrap' : 'btn btn-sm btn-outline-secondary text-nowrap'}">
+                                Tất cả
+                            </a>
+                            <a th:each="cat : ${categories}" 
+                               th:href="@{/pos(table=${currentTable}, category=${cat}, keyword=${keyword})}"
+                               th:class="${selectedCategory == cat ? 'btn btn-sm btn-primary text-nowrap' : 'btn btn-sm btn-outline-secondary text-nowrap'}"
+                               th:text="${cat}">
+                                Cà phê
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="card-body" style="height: calc(100vh - 220px); overflow-y: auto;">
                         <div class="row g-2">
                             <div class="col-6 col-lg-4" th:each="item : ${menuItems}">
                                 <div class="card h-100 shadow-sm border-0 product-card bg-white p-2">
@@ -74,10 +115,10 @@
                                     <div class="d-flex flex-column flex-grow-1 justify-content-between">
                                         <div>
                                             <strong class="d-block text-dark text-truncate" th:text="${item.tenSanPham}">Cà phê</strong>
-                                            <small class="text-muted d-block" th:text="${item.loai} + ' | ' + ${item.kichCo}">Cà phê</small>
+                                            <small class="text-muted d-block text-truncate" th:text="${item.loai}">Cà phê & Cacao</small>
                                         </div>
                                         <div class="mt-2">
-                                            <span class="text-success fw-bold d-block mb-1" th:text="${#numbers.formatDecimal(item.gia, 0, 'COMMA', 0, 'POINT')} + ' đ'">25.000 đ</span>
+                                            <span class="text-success fw-bold d-block mb-1" th:text="${#numbers.formatDecimal(item.gia, 0, 'COMMA', 0, 'POINT')} + ' đ'">45.000 đ</span>
                                             <form th:action="@{/pos/add-item}" method="post">
                                                 <input type="hidden" name="table" th:value="${currentTable}" />
                                                 <input type="hidden" name="maSanPham" th:value="${item.maSanPham}" />
@@ -87,12 +128,15 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-12 text-center py-5 text-muted" th:if="${menuItems == null || #lists.isEmpty(menuItems)}">
+                                Không có món nào trong nhóm này.
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- HÓA ĐƠN & THANH TOÁN -->
+            <!-- CỘT 3: HÓA ĐƠN & THANH TOÁN (4 Cột) -->
             <div class="col-md-4">
                 <div class="card shadow-sm border-0 order-panel">
                     <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-2">
@@ -127,7 +171,7 @@
                                         <span class="mx-1 fw-bold" th:text="${ct.soLuong}">1</span>
                                         <a th:href="@{/pos/update-qty(table=${currentTable}, maChiTiet=${ct.maChiTiet}, delta=1)}" class="btn btn-sm btn-light border py-0 px-2">+</a>
                                     </td>
-                                    <td class="text-end fw-bold" th:text="${#numbers.formatDecimal(ct.tongCong, 0, 'COMMA', 0, 'POINT')} + ' đ'">25.000 đ</td>
+                                    <td class="text-end fw-bold" th:text="${#numbers.formatDecimal(ct.tongCong, 0, 'COMMA', 0, 'POINT')} + ' đ'">45.000 đ</td>
                                     <td class="text-end">
                                         <a th:href="@{/pos/remove-item(table=${currentTable}, maChiTiet=${ct.maChiTiet})}" class="text-danger text-decoration-none fw-bold">&times;</a>
                                     </td>
@@ -139,7 +183,7 @@
                         </table>
                     </div>
 
-                    <!-- Khu vực Tính tiền & Nút Mở QR -->
+                    <!-- Thanh toán & Mở QR -->
                     <div class="card-footer bg-white border-top p-3" th:if="${!#lists.isEmpty(order.danhSachChiTiet)}">
                         <div class="d-flex justify-content-between mb-2">
                             <span class="fw-bold">Tổng Thanh Toán:</span>
@@ -170,7 +214,7 @@
         </div>
     </div>
 
-    <!-- MODAL HIỂN THỊ MÃ VIETQR ĐỘNG -->
+    <!-- Modal QR -->
     <div class="modal fade" id="qrModal" tabindex="-1" th:if="${!#lists.isEmpty(order.danhSachChiTiet)}">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -180,11 +224,8 @@
                 </div>
                 <div class="modal-body text-center p-4">
                     <p class="text-muted mb-2">Mở ứng dụng Ngân hàng hoặc Ví điện tử bất kỳ để quét</p>
-                    
-                    <!-- Tạo link VietQR động từ MB Bank (Thay STK của bạn vào đây) -->
                     <img th:src="@{'https://img.vietqr.io/image/MB-0348731999-compact2.png?amount=' + ${#numbers.formatDecimal(order.tongTien, 0, 'POINT', 0, 'POINT')} + '&addInfo=CafePAL%20Ban%20' + ${currentTable} + '%20DH' + ${order.maDonHang} + '&accountName=CAFE%20PAL'}"
                          class="img-fluid rounded border shadow-sm mb-3" style="max-height: 320px;" alt="Mã VietQR">
-                    
                     <h4 class="text-danger fw-bold" th:text="${#numbers.formatDecimal(order.tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</h4>
                     <p class="small text-muted mb-0">Nội dung: <strong>CafePAL Ban <span th:text="${currentTable}"></span> DH<span th:text="${order.maDonHang}"></span></strong></p>
                 </div>

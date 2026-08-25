@@ -23,15 +23,20 @@ public class SanPhamController {
     private SanPhamService sanPhamService;
 
     @GetMapping
-    public String listProducts(@RequestParam(value = "keyword", required = false) String keyword, Model model) {
-        model.addAttribute("products", sanPhamService.searchByName(keyword));
+    public String listProducts(@RequestParam(value = "keyword", required = false) String keyword,
+                               @RequestParam(value = "category", required = false, defaultValue = "ALL") String category,
+                               Model model) {
+        model.addAttribute("products", sanPhamService.searchAndFilter(keyword, category));
+        model.addAttribute("categories", sanPhamService.getAllCategories());
         model.addAttribute("keyword", keyword);
+        model.addAttribute("selectedCategory", category);
         return "product-list";
     }
 
     @GetMapping("/add")
     public String showAddForm(Model model) {
         model.addAttribute("product", new SanPham());
+        model.addAttribute("categories", sanPhamService.getAllCategories());
         return "product-form";
     }
 
@@ -40,17 +45,16 @@ public class SanPhamController {
         SanPham product = sanPhamService.getSanPhamById(id);
         if (product != null) {
             model.addAttribute("product", product);
+            model.addAttribute("categories", sanPhamService.getAllCategories());
             return "product-form";
         }
         return "redirect:/products";
     }
 
-    // Xử lý lưu món kèm file ảnh upload
     @PostMapping("/save")
     public String saveProduct(@ModelAttribute("product") SanPham product,
                               @RequestParam("imageFile") MultipartFile imageFile) throws IOException {
 
-        // Kiểm tra nếu người dùng có chọn file ảnh mới
         if (!imageFile.isEmpty()) {
             String fileName = StringUtils.cleanPath(imageFile.getOriginalFilename());
             String uniqueFileName = UUID.randomUUID().toString() + "_" + fileName;
@@ -66,7 +70,6 @@ public class SanPhamController {
                 product.setHinhAnh("/uploads/" + uniqueFileName);
             }
         } else if (product.getMaSanPham() != null) {
-            // Khi sửa mà không chọn ảnh mới, giữ lại ảnh cũ
             SanPham oldProduct = sanPhamService.getSanPhamById(product.getMaSanPham());
             if (oldProduct != null) {
                 product.setHinhAnh(oldProduct.getHinhAnh());
