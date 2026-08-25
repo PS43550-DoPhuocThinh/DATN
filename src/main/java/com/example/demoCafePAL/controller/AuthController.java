@@ -1,11 +1,8 @@
 package com.example.demoCafePAL.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -26,19 +23,9 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // Xử lý trang chủ tại đây
+    // Để GlobalControllerAdvice tự động xử lý thông tin tài khoản và quyền hạn
     @GetMapping({"/", "/home", "/index"})
-    public String homePage(Authentication authentication, Model model) {
-        if (authentication != null && authentication.isAuthenticated() 
-                && !(authentication instanceof AnonymousAuthenticationToken)) {
-            model.addAttribute("currentUser", authentication.getName());
-            boolean isAdmin = authentication.getAuthorities().stream()
-                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-            model.addAttribute("isAdmin", isAdmin);
-        } else {
-            model.addAttribute("currentUser", null);
-            model.addAttribute("isAdmin", false);
-        }
+    public String homePage() {
         return "index";
     }
 
@@ -49,13 +36,13 @@ public class AuthController {
 
     @GetMapping("/register")
     public String registerPage() {
-        return "register"; 
+        return "register";
     }
 
     @PostMapping("/register")
     public String processRegister(NguoiDung nguoiDung) {
         nguoiDung.setMatKhau(passwordEncoder.encode(nguoiDung.getMatKhau()));
-        
+
         VaiTro roleGuest = vaiTroRepository.findByTenVaiTro("GUEST")
                 .orElseGet(() -> {
                     VaiTro newRole = new VaiTro();
@@ -63,9 +50,9 @@ public class AuthController {
                     return vaiTroRepository.save(newRole);
                 });
         nguoiDung.setVaiTro(roleGuest);
-        
+
         nguoiDungRepository.save(nguoiDung);
-        
-        return "redirect:/login?registered"; 
+
+        return "redirect:/login?registered=true";
     }
 }

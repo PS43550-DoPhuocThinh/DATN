@@ -9,6 +9,7 @@
 </head>
 <body class="bg-light">
 
+    <!-- Header Navbar Chuẩn Toàn Hệ Thống -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top py-2">
         <div class="container-fluid px-4">
             <a class="navbar-brand fw-bold fs-5 d-flex align-items-center" th:href="@{/}">
@@ -22,23 +23,36 @@
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/}"><i class="bi bi-house-door me-1"></i> Trang chủ</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" th:if="${isStaffOrAdmin}">
                         <a class="nav-link text-light" th:href="@{/pos}"><i class="bi bi-grid-3x3-gap-fill me-1 text-info"></i> Bán Hàng (POS)</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link active fw-bold text-warning" th:href="@{/products}"><i class="bi bi-cup-straw me-1"></i> Quản lý Thực Đơn</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" th:if="${isStaffOrAdmin}">
                         <a class="nav-link text-light" th:href="@{/inventory}"><i class="bi bi-box-seam-fill me-1 text-success"></i> Quản lý Kho Hàng</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" th:if="${isAdmin}">
                         <a class="nav-link text-warning fw-semibold" th:href="@{/users}"><i class="bi bi-people-fill me-1"></i> Quản lý Người Dùng</a>
                     </li>
                 </ul>
+
                 <div class="d-flex align-items-center">
-                    <a th:href="@{/}" class="btn btn-outline-light btn-sm px-3">
-                        <i class="bi bi-arrow-left me-1"></i> Về trang chủ
-                    </a>
+                    <div th:if="${currentUser == null}">
+                        <a class="btn btn-outline-light btn-sm me-2 px-3 fw-semibold" th:href="@{/login}">Đăng nhập</a>
+                        <a class="btn btn-warning btn-sm px-3 fw-bold" th:href="@{/register}">Đăng ký</a>
+                    </div>
+                    <div th:if="${currentUser != null}" class="text-light d-flex align-items-center">
+                        <div class="me-3 text-end d-none d-sm-block">
+                            <small class="text-secondary d-block" style="font-size: 11px;">Tài khoản</small>
+                            <span class="fw-bold text-warning" th:text="${currentUser}">Admin</span>
+                        </div>
+                        <form th:action="@{/logout}" method="post" class="d-inline m-0">
+                            <button class="btn btn-danger btn-sm px-3 rounded-pill" type="submit">
+                                <i class="bi bi-box-arrow-right me-1"></i> Đăng xuất
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -48,10 +62,10 @@
         <div class="card shadow-sm border-0">
             <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                 <h5 class="m-0 fw-bold">📋 Danh Sách Món / Thực Đơn PAL COFFEE</h5>
-                <a th:href="@{/products/add}" class="btn btn-primary btn-sm">+ Thêm món mới</a>
+                <a th:if="${isStaffOrAdmin}" th:href="@{/products/add}" class="btn btn-primary btn-sm">+ Thêm món mới</a>
             </div>
 
-            <!-- Thanh Tabs Lọc Nhanh Theo Phân Loại -->
+            <!-- Thanh Tabs Lọc Nhanh Phân Loại -->
             <div class="card-body bg-white border-bottom pb-2">
                 <div class="d-flex flex-wrap gap-2">
                     <a th:href="@{/products(category='ALL', keyword=${keyword})}" 
@@ -92,7 +106,7 @@
                                 <th>Phân loại</th>
                                 <th>Kích cỡ</th>
                                 <th>Đơn giá</th>
-                                <th class="text-center">Thao tác</th>
+                                <th class="text-center" th:if="${isStaffOrAdmin}">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -110,7 +124,7 @@
                                 </td>
                                 <td><span class="badge bg-secondary" th:text="${item.kichCo}">Size</span></td>
                                 <td class="fw-bold text-success" th:text="${item.gia != null ? #numbers.formatDecimal(item.gia, 0, 'COMMA', 0, 'POINT') + ' đ' : '0 đ'}">0 đ</td>
-                                <td class="text-center">
+                                <td class="text-center" th:if="${isStaffOrAdmin}">
                                     <a th:href="@{/products/edit/{id}(id=${item.maSanPham})}" class="btn btn-warning btn-sm me-1">Sửa</a>
                                     <a th:href="@{/products/delete/{id}(id=${item.maSanPham})}" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</a>
                                 </td>
